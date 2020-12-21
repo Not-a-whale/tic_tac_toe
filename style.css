@@ -16,12 +16,14 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
   color: #545454;
 }
 
 .container {
   background: #39cccc;
-  margin: 50px;
   padding: 50px;
   border-radius: 25px;
 }
@@ -42,6 +44,7 @@ body {
   display: flex;
   -ms-flex-pack: distribute;
       justify-content: space-around;
+  height: 30px;
 }
 
 .reset {
@@ -79,10 +82,16 @@ body {
           justify-content: center;
   -webkit-transition: 0.5s all;
   transition: 0.5s all;
+  border: 5px solid transparent;
 }
 
 .game-cell:hover {
   cursor: pointer;
+}
+
+.x,
+.o {
+  cursor: default;
 }
 
 .x::after {
@@ -92,7 +101,58 @@ body {
 
 .o::after {
   content: "○";
+  color: #f2ebd3;
   font-size: 130px;
   font-weight: bold;
+}
+
+.status span {
+  color: #f2ebd3;
+}
+
+.won::after {
+  color: #bd022f;
+}
+
+@media only screen and (max-width: 1024px) {
+  .game-grid {
+    margin-top: 25px;
+    grid-gap: 16px;
+    gap: 10px;
+  }
+  .game-cell {
+    height: 100px;
+    width: 100px;
+  }
+  .x::after {
+    font-size: 85px;
+  }
+  .o::after {
+    font-size: 85px;
+  }
+}
+
+@media only screen and (max-width: 540px) {
+  .container {
+    margin: 25px;
+    padding: 25px;
+  }
+  .game-grid {
+    gap: 5px;
+  }
+  .game-cell {
+    height: 75px;
+    width: 75px;
+  }
+  .x::after {
+    font-size: 50px;
+  }
+  .o::after {
+    font-size: 50px;
+  }
+}
+
+.active {
+  border: 5px solid goldenrod;
 }
 /*# sourceMappingURL=style.css.map */
