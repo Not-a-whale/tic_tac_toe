@@ -27,7 +27,7 @@ let currentY = 0;
 let newElem = matrix[currentY][currentX];
 
 let huPlayer = "x";
-let aiPlayer = "0";
+let aiPlayer = "o";
 
 // game constants
 
@@ -279,33 +279,96 @@ const emptySquares = (elems) => {
 
 const bestSpot = (origBoard) => {
   let isAi = xIsNext ? "x" : "o";
-  return minimax(origBoard, isAi);
+  return minimax([...cellDivs], isAi);
 };
 
 const checkWin = (board, player) => {
-  let aiMoves = [];
-  board.forEach((elem, index) => {
-    if (elem.classList[3] === player) {
-      aiMoves.push(index);
-    }
-  });
+  const aiMoves = board.reduce(
+    (a, e, i) => (e.classList[3] === player ? a.concat(i) : a),
+    []
+  );
 
-  for (let i = 0; i < winCombos.length; i++) {
-    let count = 0;
-    aiMoves.forEach((elem) => {
-      if (winCombos[i].includes(elem.toString())) {
-        ++count;
-      }
-    });
-    if (count >= 2) {
-      console.log(winCombos[i]);
+  let gameWon = null;
+  for (let [index, win] of winCombos.entries()) {
+    if (win.every((elem) => aiMoves.indexOf(elem) > -1)) {
+      gameWon = { index: index, player: player };
+      break;
     }
   }
+
+  console.log(gameWon);
+  return gameWon;
 };
 
 const minimax = (newBoard, player) => {
-  let availableSpots = emptySquares(newBoard);
-  checkWin(cellDivs, player);
+  let availSpots = emptySquares(newBoard);
+  console.log(availSpots);
+  /* 
+  if (checkWin(newBoard, huPlayer)) {
+    return { score: -10 };
+  } else if (checkWin(newBoard, aiPlayer)) {
+    return { score: 10 };
+  } else if (availSpots.length === 0) {
+    return { score: 0 };
+  }
+
+  var moves = [];
+  for (var i = 0; i < availSpots.length; i++) {
+    var move = {};
+    move.index = newBoard[availSpots[i]];
+    newBoard[availSpots[i]] = player;
+
+    if (player == aiPlayer) {
+      var result = minimax(newBoard, huPlayer);
+      move.score = result.score;
+    } else {
+      var result = minimax(newBoard, aiPlayer);
+      move.score = result.score;
+    }
+
+    newBoard[availSpots[i]] = move.index;
+
+    moves.push(move);
+  }
+
+  var bestMove;
+  if (player === aiPlayer) {
+    var bestScore = -10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score > bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  } else {
+    var bestScore = 10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score < bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  }
+
+  return moves[bestMove];  */
+
+  for (let i = 0; i < availSpots.length; i++) {
+    const move = {};
+    const availbleIndex = availSpots[i];
+    move.index = newBoard[availbleIndex];
+    console.log(availbleIndex, player);
+
+    if (player === aiPlayer) move.score = minimax(newBoard, huPlayer).score;
+    else move.score = minimax(newBoard, aiPlayer).score;
+    newBoard[availbleIndex] = newBoard[move.index];
+    if (
+      (player === aiPlayer && move.score === 10) ||
+      (player === huPlayer && move.score === -10)
+    ) {
+      if (i > 10) break;
+      return move;
+    } else moves.push(move);
+  }
   return 0;
 };
 
