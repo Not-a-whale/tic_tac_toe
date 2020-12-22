@@ -283,11 +283,13 @@ const bestSpot = (origBoard) => {
 };
 
 const checkWin = (board, player) => {
+  console.log(board);
   const aiMoves = board.reduce(
-    (a, e, i) => (e.classList[3] === player ? a.concat(i) : a),
+    (a, e, i) => (e.classList[3] === player ? a.concat(i.toString()) : a),
     []
   );
 
+  console.log(aiMoves);
   let gameWon = null;
   for (let [index, win] of winCombos.entries()) {
     if (win.every((elem) => aiMoves.indexOf(elem) > -1)) {
@@ -295,35 +297,35 @@ const checkWin = (board, player) => {
       break;
     }
   }
-
-  console.log(gameWon);
   return gameWon;
 };
 
-const minimax = (newBoard, player) => {
-  let availSpots = emptySquares(newBoard);
+function minimax(newBoard, player) {
+  let availSpots = emptySquares(newBoard, player);
   console.log(availSpots);
-  /* 
-  if (checkWin(newBoard, huPlayer)) {
+  if (checkWin([...newBoard], huPlayer)) {
     return { score: -10 };
-  } else if (checkWin(newBoard, aiPlayer)) {
+  } else if (checkWin([...newBoard], aiPlayer)) {
     return { score: 10 };
   } else if (availSpots.length === 0) {
     return { score: 0 };
   }
-
-  var moves = [];
-  for (var i = 0; i < availSpots.length; i++) {
-    var move = {};
+  const moves = [];
+  console.log(moves);
+  for (let i = 0; i < availSpots.length; i++) {
+    const move = {};
     move.index = newBoard[availSpots[i]];
-    newBoard[availSpots[i]] = player;
+    console.log(availSpots[i]);
+    newBoard[availSpots[i].classList[3]] = player;
 
     if (player == aiPlayer) {
-      var result = minimax(newBoard, huPlayer);
+      let result = minimax(newBoard, huPlayer);
+      console.log(result);
       move.score = result.score;
     } else {
-      var result = minimax(newBoard, aiPlayer);
+      let result = minimax(newBoard, aiPlayer);
       move.score = result.score;
+      console.log(result);
     }
 
     newBoard[availSpots[i]] = move.index;
@@ -331,18 +333,18 @@ const minimax = (newBoard, player) => {
     moves.push(move);
   }
 
-  var bestMove;
+  let bestMove;
   if (player === aiPlayer) {
-    var bestScore = -10000;
-    for (var i = 0; i < moves.length; i++) {
+    let bestScore = -10000;
+    for (let i = 0; i < moves.length; i++) {
       if (moves[i].score > bestScore) {
         bestScore = moves[i].score;
         bestMove = i;
       }
     }
   } else {
-    var bestScore = 10000;
-    for (var i = 0; i < moves.length; i++) {
+    let bestScore = 10000;
+    for (let i = 0; i < moves.length; i++) {
       if (moves[i].score < bestScore) {
         bestScore = moves[i].score;
         bestMove = i;
@@ -350,27 +352,8 @@ const minimax = (newBoard, player) => {
     }
   }
 
-  return moves[bestMove];  */
-
-  for (let i = 0; i < availSpots.length; i++) {
-    const move = {};
-    const availbleIndex = availSpots[i];
-    move.index = newBoard[availbleIndex];
-    console.log(availbleIndex, player);
-
-    if (player === aiPlayer) move.score = minimax(newBoard, huPlayer).score;
-    else move.score = minimax(newBoard, aiPlayer).score;
-    newBoard[availbleIndex] = newBoard[move.index];
-    if (
-      (player === aiPlayer && move.score === 10) ||
-      (player === huPlayer && move.score === -10)
-    ) {
-      if (i > 10) break;
-      return move;
-    } else moves.push(move);
-  }
-  return 0;
-};
+  return moves[bestMove];
+}
 
 for (const cellDiv of cellDivs) {
   cellDiv.addEventListener("click", handleCellClick);
