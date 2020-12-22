@@ -13,7 +13,7 @@ let winCombos = [
   [1, 4, 7],
   [2, 5, 8],
   [0, 4, 8],
-  [6, 4, 2],
+  [2, 4, 6],
 ];
 
 let newElem = 0;
@@ -25,12 +25,15 @@ let aiPlayer = "o";
 
 const xSymbol = "✗";
 const oSymbol = "○";
-let currentPlayerSymbol = xSymbol;
 
+let currentPlayerSymbol = xSymbol;
 let gameIsRunning = true;
-let winner = null;
 let lastCell = 0;
 let currentCell = 0;
+
+let moveCellRating = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+let winCombinatingRatingAi = [0, 0, 0, 0, 0, 0, 0, 0];
+let winCombinatingRatingPerson = [0, 0, 0, 0, 0, 0, 0, 0];
 
 // functions
 const move = (keyCode) => {
@@ -201,7 +204,7 @@ const checkWin = (board, player) => {
 
 function minimax(newBoard, player) {
   let availSpots = emptySquares(newBoard, player);
-  if (checkWin([...newBoard], huPlayer)) {
+  /*  if (checkWin([...newBoard], huPlayer)) {
     return { score: -10 };
   } else if (checkWin([...newBoard], aiPlayer)) {
     return { score: 10 };
@@ -250,9 +253,34 @@ function minimax(newBoard, player) {
     }
   }
 
-  return moves[bestMove];
+  return moves[bestMove]; */
+  return 0;
 }
 
+const ratingCalculation = () => {
+  winCombos.forEach((combo) => {
+    let rating = 0;
+    let firstSymbol = '';
+    for (let i = 0; i < 3; i++) {
+      var currentSymbol = cellDivs[combo[i]].classList[3];
+      if (currentSymbol) {
+        if (firstSymbol === ''|| firstSymbol === currentSymbol)
+        {
+          firstSymbol = currentSymbol;
+          rating += 1;
+        } else {
+          rating = 0;
+          break;
+        }
+      }
+      
+
+
+     //  xRating += 1;
+      //} else if (cellDivs[combo[i]].classList.includes("o")) {
+      //  oRating += 1;
+     // }
+   
 for (const cellDiv of cellDivs) {
   cellDiv.addEventListener("click", handleCellClick);
 }
