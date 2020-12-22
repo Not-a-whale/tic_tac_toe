@@ -5,26 +5,18 @@ const activeCell = document.querySelector(".active");
 
 document.addEventListener("keydown", (e) => move(e.keyCode));
 
-let matrix = [
-  ["1", "2", "3"],
-  ["4", "5", "6"],
-  ["7", "8", "9"],
-];
-
 let winCombos = [
-  ["0", "1", "2"],
-  ["3", "4", "5"],
-  ["6", "7", "8"],
-  ["0", "3", "6"],
-  ["1", "4", "7"],
-  ["2", "5", "8"],
-  ["0", "4", "8"],
-  ["6", "4", "2"],
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [6, 4, 2],
 ];
 
-let currentX = 0;
-let currentY = 0;
-let newElem = matrix[currentY][currentX];
+let newElem = 0;
 
 let huPlayer = "x";
 let aiPlayer = "o";
@@ -33,10 +25,12 @@ let aiPlayer = "o";
 
 const xSymbol = "✗";
 const oSymbol = "○";
+let currentPlayerSymbol = xSymbol;
 
 let gameIsRunning = true;
-let xIsNext = true;
 let winner = null;
+let lastCell = 0;
+let currentCell = 0;
 
 // functions
 const move = (keyCode) => {
@@ -61,39 +55,18 @@ const move = (keyCode) => {
     }
 
     if (key === "up") {
-      currentY--;
-      if (currentY < 0) {
-        currentY = 0;
-      }
-      newElem = matrix[currentY][currentX];
+      if (currentCell > 2) currentCell -= 3;
     } else if (key === "down") {
-      currentY++;
-      if (currentY > 2) {
-        currentY = 2;
-      }
-      newElem = matrix[currentY][currentX];
+      if (currentCell < 6) currentCell += 3;
     } else if (key === "right") {
-      currentX++;
-      if (currentX > 2) {
-        currentX = 2;
-      }
-      newElem = matrix[currentY][currentX];
+      if (currentCell % 3 < 2) currentCell += 1;
     } else if (key === "left") {
-      currentX--;
-      if (currentX < 0) {
-        currentX = 0;
-      }
-      newElem = matrix[currentY][currentX];
+      if (currentCell % 3 > 0) currentCell -= 1;
     } else if (key === "return") {
-      handleCellClick(false, newElem);
+      handleCellClick(false, currentCell);
     }
 
-    cellDivs.forEach((div) => {
-      div.classList.replace("active", "inactive");
-      if (div.classList[1] === newElem) {
-        div.classList.replace("inactive", "active");
-      }
-    });
+    updateActiveCell();
   }
 };
 
@@ -101,101 +74,40 @@ const letterToSymbol = (letter) => {
   return letter === "x" ? xSymbol : oSymbol;
 };
 
-const handleWin = (letter) => {
-  gameIsRunning = false;
-  winner = letter;
-
-  if (winner === "x") {
-    statusDiv.innerHTML = `${letterToSymbol(winner)} has won!`;
-  } else {
-    statusDiv.innerHTML = `<span>${letterToSymbol(winner)} has won!</span>`;
-  }
+const getClassForSymbol = (letter) => {
+  return letter === xSymbol ? "x" : "o";
 };
 
 const checkGameStatus = () => {
-  const topLeft = cellDivs[0].classList[3];
-  const topMiddle = cellDivs[1].classList[3];
-  const topRight = cellDivs[2].classList[3];
-  const middleLeft = cellDivs[3].classList[3];
-  const middleMiddle = cellDivs[4].classList[3];
-  const middleRight = cellDivs[5].classList[3];
-  const bottomLeft = cellDivs[6].classList[3];
-  const bottomMiddle = cellDivs[7].classList[3];
-  const bottomRight = cellDivs[8].classList[3];
-
-  // check a winner
-
-  if (topLeft && topLeft === topMiddle && topLeft === topRight) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add("won");
-    cellDivs[1].classList.add("won");
-    cellDivs[2].classList.add("won");
-  } else if (
-    middleLeft &&
-    middleLeft === middleMiddle &&
-    middleLeft === middleRight
-  ) {
-    handleWin(middleLeft);
-    cellDivs[3].classList.add("won");
-    cellDivs[4].classList.add("won");
-    cellDivs[5].classList.add("won");
-  } else if (
-    bottomLeft &&
-    bottomLeft === bottomMiddle &&
-    bottomLeft === bottomRight
-  ) {
-    handleWin(bottomLeft);
-    cellDivs[6].classList.add("won");
-    cellDivs[7].classList.add("won");
-    cellDivs[8].classList.add("won");
-  } else if (topLeft && topLeft === middleLeft && topLeft === bottomLeft) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add("won");
-    cellDivs[3].classList.add("won");
-    cellDivs[6].classList.add("won");
-  } else if (
-    topMiddle &&
-    topMiddle === middleMiddle &&
-    topMiddle === bottomMiddle
-  ) {
-    handleWin(topMiddle);
-    cellDivs[1].classList.add("won");
-    cellDivs[4].classList.add("won");
-    cellDivs[7].classList.add("won");
-  } else if (topRight && topRight === middleRight && topRight === bottomRight) {
-    handleWin(topRight);
-    cellDivs[2].classList.add("won");
-    cellDivs[5].classList.add("won");
-    cellDivs[8].classList.add("won");
-  } else if (topLeft && topLeft === middleMiddle && topLeft === bottomRight) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add("won");
-    cellDivs[4].classList.add("won");
-    cellDivs[8].classList.add("won");
-  } else if (topRight && topRight === middleMiddle && topRight === bottomLeft) {
-    handleWin(topRight);
-    cellDivs[2].classList.add("won");
-    cellDivs[4].classList.add("won");
-    cellDivs[6].classList.add("won");
-  } else if (
-    topLeft &&
-    topMiddle &&
-    topRight &&
-    middleLeft &&
-    middleMiddle &&
-    middleRight &&
-    bottomMiddle &&
-    bottomRight &&
-    bottomLeft
-  ) {
-    gameIsRunning = false;
-    statusDiv.innerHTML = "Game is tied!";
-  } else {
-    xIsNext = !xIsNext;
-    if (xIsNext) {
-      statusDiv.innerHTML = `${letterToSymbol("x")} is next`;
+  for (let i = 0; i < winCombos.length; i++) {
+    if (
+      cellDivs[winCombos[i][0]].classList[3] &&
+      cellDivs[winCombos[i][0]].classList[3] ===
+        cellDivs[winCombos[i][1]].classList[3] &&
+      cellDivs[winCombos[i][0]].classList[3] ===
+        cellDivs[winCombos[i][2]].classList[3]
+    ) {
+      gameIsRunning = false;
+      for (let j = 0; j < 3; j++) {
+        cellDivs[winCombos[i][j]].classList.add("won");
+      }
+      statusDiv.innerHTML =
+        currentPlayerSymbol === xSymbol
+          ? `${currentPlayerSymbol} has won!`
+          : `<span>${currentPlayerSymbol} has won!</span>`;
+      break;
+    }
+  }
+  if (gameIsRunning) {
+    if (emptySquares(cellDivs).length === 0) {
+      gameIsRunning = false;
+      statusDiv.innerHTML = "Game is tied!";
     } else {
-      statusDiv.innerHTML = `<span>${letterToSymbol(oSymbol)} is next</span>`;
+      currentPlayerSymbol = currentPlayerSymbol === xSymbol ? oSymbol : xSymbol;
+      status.innerHTML =
+        currentPlayerSymbol === xSymbol
+          ? `${currentPlayerSymbol} is next`
+          : `<span>${currentPlayerSymbol} is next</span>`;
     }
   }
 };
@@ -222,64 +134,50 @@ resetDiv.addEventListener("click", handleReset);
 
 const handleCellClick = (e, elem) => {
   if (gameIsRunning) {
-    let classList;
-    if (e) {
-      classList = e.target.classList;
-    } else if (elem) {
-      cellDivs.forEach((div) => {
-        if (Array.from(div.classList).includes(elem)) {
-          classList = div.classList;
-        }
-      });
-    }
+    let classList = e ? e.target.classList : cellDivs[elem].classList;
 
-    if (!gameIsRunning || classList[3] === "x" || classList[3] === "o") {
+    if (classList[3] === "x" || classList[3] === "o") {
       return;
     }
+    classList.add(getClassForSymbol(currentPlayerSymbol));
 
-    if (xIsNext) {
-      classList.add("x");
-      checkGameStatus();
-    } else {
-      classList.add("o");
-      checkGameStatus();
+    if (e) {
+      currentCell = parseInt(e.target.classList[1]);
+      updateActiveCell();
     }
 
-    if (e.target) {
-      cellDivs.forEach((div) => {
-        div.classList.replace("active", "inactive");
-      });
-      e.target.classList.replace("inactive", "active");
-    }
+    checkGameStatus();
+
+    // Turn of the ai
+
     aiTurn();
   }
+};
+
+const updateActiveCell = () => {
+  cellDivs[lastCell].classList.replace("active", "inactive");
+  cellDivs[currentCell].classList.replace("inactive", "active");
+  lastCell = currentCell;
 };
 
 const aiTurn = () => {
   window.setTimeout(() => {
     if (gameIsRunning) {
       let availableSpots = emptySquares(cellDivs);
-
-      if (xIsNext) {
-        availableSpots[0].classList.add("x");
-        checkGameStatus();
-      } else {
-        availableSpots[bestSpot(availableSpots)].classList.add("o");
-        checkGameStatus();
-      }
+      availableSpots[bestSpot(availableSpots)].classList.add(
+        getClassForSymbol(oSymbol)
+      );
+      checkGameStatus();
     }
   }, 300);
 };
 
 const emptySquares = (elems) => {
-  return Array.from(elems).filter((div, index) => {
-    return !div.classList[3];
-  });
+  return Array.from(elems).filter((div) => !div.classList[3]);
 };
 
 const bestSpot = (origBoard) => {
-  let isAi = xIsNext ? "x" : "o";
-  return minimax([...cellDivs], isAi);
+  return minimax([...cellDivs], true);
 };
 
 const checkWin = (board, player) => {
@@ -302,7 +200,8 @@ const checkWin = (board, player) => {
 
 function minimax(newBoard, player) {
   let availSpots = emptySquares(newBoard, player);
-  console.log(availSpots);
+  return 0;
+  /*   console.log(availSpots);
   if (checkWin([...newBoard], huPlayer)) {
     return { score: -10 };
   } else if (checkWin([...newBoard], aiPlayer)) {
@@ -352,7 +251,7 @@ function minimax(newBoard, player) {
     }
   }
 
-  return moves[bestMove];
+  return moves[bestMove]; */
 }
 
 for (const cellDiv of cellDivs) {
