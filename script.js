@@ -114,10 +114,10 @@ const checkGameStatus = () => {
 
 // event Handlers
 const handleReset = (e) => {
-  xIsNext = true;
-  statusDiv.innerHTML = `${letterToSymbol(xSymbol)} is next`;
-  winner = null;
-  gameIsRunning = true;
+  currentPlayerSymbol = xSymbol;
+  statusDiv.innerHTML = `${currentPlayerSymbol} is next`;
+  lastCell = 0;
+  currentCell = 0;
   cellDivs.forEach((div) => {
     div.classList.replace("active", "inactive");
   });
@@ -127,6 +127,7 @@ const handleReset = (e) => {
     cellDiv.classList.remove("won");
   }
   cellDivs[0].classList.replace("inactive", "active");
+  gameIsRunning = true;
 };
 // event listeners
 
@@ -200,8 +201,6 @@ const checkWin = (board, player) => {
 
 function minimax(newBoard, player) {
   let availSpots = emptySquares(newBoard, player);
-  return 0;
-  /*   console.log(availSpots);
   if (checkWin([...newBoard], huPlayer)) {
     return { score: -10 };
   } else if (checkWin([...newBoard], aiPlayer)) {
@@ -251,7 +250,7 @@ function minimax(newBoard, player) {
     }
   }
 
-  return moves[bestMove]; */
+  return moves[bestMove];
 }
 
 for (const cellDiv of cellDivs) {
