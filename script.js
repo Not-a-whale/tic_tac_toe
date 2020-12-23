@@ -39,6 +39,7 @@ let digitToWinComboIndex = [
   [2, 6, -1, -1],
   [1, 4, 5, -1],
   [3, 4, -1, -1],
+  [0, 4, 6, -1],
 ];
 // functions
 const move = (keyCode) => {
@@ -110,7 +111,7 @@ const checkGameStatus = () => {
       statusDiv.innerHTML = "Game is tied!";
     } else {
       currentPlayerSymbol = currentPlayerSymbol === xSymbol ? oSymbol : xSymbol;
-      status.innerHTML =
+      statusDiv.innerHTML =
         currentPlayerSymbol === xSymbol
           ? `${currentPlayerSymbol} is next`
           : `<span>${currentPlayerSymbol} is next</span>`;
@@ -158,9 +159,7 @@ const handleCellClick = (e, elem) => {
     if (currentCell === 4) isCellFourPlayed = true;
 
     digitToWinComboIndex[currentCell].forEach((elem) => {
-      if (elem > -1) {
-        winCombinatingOwnedCellsPerson[elem] += 1;
-      }
+      if (elem > -1) winCombinatingOwnedCellsPerson[elem] += 1;
     });
 
     checkGameStatus();
@@ -180,82 +179,104 @@ const updateActiveCell = () => {
 const aiTurn = () => {
   window.setTimeout(() => {
     if (gameIsRunning) {
-      let availableSpots = emptySquares(cellDivs);
+      let nextMoveCell = getNextAiCell();
+      cellDivs[nextMoveCell].classList.add(getClassForSymbol(oSymbol));
 
-      if (currentCell === 4) isCellFourPlayed = true;
-
-      digitToWinComboIndex[currentCell].forEach((elem) => {
-        if (elem > -1) {
-          winCombinatingOwnedCellsPerson[elem] += 1;
-        }
+      digitToWinComboIndex[nextMoveCell].forEach((elem) => {
+        if (elem > -1) winCombinatingOwnedCellsAi[elem] += 1;
       });
-      availableSpots[bestSpot(availableSpots)].classList.add(
-        getClassForSymbol(oSymbol)
-      );
       checkGameStatus();
     }
   }, 300);
 };
 
 const getNextAiCell = () => {
-  let moveCell = -1;
   if (!isCellFourPlayed) {
     isCellFourPlayed = true;
     return 4;
   }
-  let bestAiWinLineIndex = 0;
-  let personWinLineToBreakIndex = -1;
+  let cellToLock = -1;
+  // quick check for the penultimate step to win
   for (let i = 0; i < 8; i++) {
-    if (winCombinatingOwnedCellsPerson[i] === 2) {
-      for (let j = 0; j < 3; j++) {
-        if (!cellDivs[winCombos[i][j]].classList[3]) return winCombos[i][j];
+    if (
+      winCombinatingOwnedCellsAi[i] === 2 &&
+      winCombinatingOwnedCellsPerson[i] === 0
+    )
+      return getFirstFreeCell(i);
+    if (
+      winCombinatingOwnedCellsPerson[i] === 2 &&
+      winCombinatingOwnedCellsAi[i] === 0
+    )
+      cellToLock = getFirstFreeCell(i);
+  }
+  if (cellToLock > -1) return cellToLock;
+
+  // variables for the best winning line
+  let bestAiWinLineIndex = -1;
+  let isFullyAiLine = false;
+
+  // looping through winning combos
+  for (let i = 0; i < 8; i++) {
+    // check for a free cell
+    if (winCombinatingOwnedCellsAi[i] + winCombinatingOwnedCellsPerson[i] < 3) {
+      let currentLineIsFullyAiLine = winCombinatingOwnedCellsPerson[i] === 0;
+      if (bestAiWinLineIndex === -1) {
+        bestAiWinLineIndex = i;
+        isFullyAiLine = currentLineIsFullyAiLine;
+      }
+      // finding the cell with the biggest possible score with "clean" line; "clean" - without player.
+      if (
+        winCombinatingOwnedCellsAi[i] >
+          winCombinatingOwnedCellsAi[bestAiWinLineIndex] &&
+        (currentLineIsFullyAiLine || !isFullyAiLine)
+      ) {
+        bestAiWinLineIndex = i;
+        cellToLock = -1;
+        isFullyAiLine = currentLineIsFullyAiLine;
       }
     }
-    if (
-      winCombinatingOwnedCellsAi[i] >
-      winCombinatingOwnedCellsAi[bestAiWinLineIndex]
-    ) {
-      bestAiWinLineIndex = i;
-      personWinLineToBreakIndex = -1;
-    }
+    // checking for the chance to break player's advantage
     if (
       winCombinatingOwnedCellsAi[i] ===
-        winCombinatingOwnedCellsAi[bestAiWinLineIndex] &&
-      bestAiWinLineIndex > 0 &&
-      personWinLineToBreakIndex === -1
+      winCombinatingOwnedCellsAi[bestAiWinLineIndex]
     ) {
-      winCombos[i].forEach((winLineCell) => {
-        digitToWinComboIndex[winLineCell].forEach((winLineIndex) => {
-          if (winLineIndex > -1) {
+      for (let j = 0; j < 3, cellToLock === -1; j++) {
+        if (!cellDivs[winCombos[i][j]].classList[3]) {
+          let currentCellToCheck = winCombos[i][j];
+          for (let k = 0; k < 4; k++) {
+            let possiblePersonLineIndex =
+              digitToWinComboIndex[currentCellToCheck][k];
             if (
-              winCombinatingOwnedCellsAi[winLineIndex] === 0 &&
-              winCombinatingOwnedCellsPerson[winLineIndex] > 0
+              possiblePersonLineIndex > -1 &&
+              winCombinatingOwnedCellsAi[possiblePersonLineIndex] === 0 &&
+              winCombinatingOwnedCellsPerson[possiblePersonLineIndex] > 0
             ) {
-              for (let j = 0; j < 3; j++) {
-                if (!cellDivs[winCombos[winLineIndex][j]].classList[3]) {
-                  bestAiWinLineIndex = i;
-                  personWinLineToBreakIndex = -1;
-                  return winCombos[winLineIndex][j];
-                }
-              }
+              bestAiWinLineIndex = i;
+              cellToLock = currentCellToCheck;
+              break;
             }
           }
-        });
-      });
+        }
+      }
     }
+    // making a move to "break" player's line
+    if (cellToLock > -1) return cellToLock;
+
+    // making a move based on all previous filters
+    console.log(bestAiWinLineIndex);
+    return getFirstFreeCell(bestAiWinLineIndex);
+  }
+};
+
+const getFirstFreeCell = (winComboRowIndex) => {
+  for (let j = 0; j < 3; j++) {
+    if (!cellDivs[winCombos[winComboRowIndex][j]].classList[3])
+      return winCombos[winComboRowIndex][j];
   }
 };
 
 const emptySquares = (elems) => {
   return Array.from(elems).filter((div) => !div.classList[3]);
-};
-
-const bestSpot = (origBoard) => {
-  return minimax([...cellDivs], true);
-};
-
-const minimax = () => {
-  return 0;
 };
 
 for (const cellDiv of cellDivs) {
