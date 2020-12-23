@@ -180,15 +180,6 @@ const updateActiveCell = () => {
 const aiTurn = () => {
   window.setTimeout(() => {
     if (gameIsRunning) {
-      let moveCell = -1;
-      if (!isCellFourPlayed) {
-        moveCell = 4;
-      } else {
-        let bestAiWinLineScore = -1;
-        let bestAiWinLineIndex = -1;
-        let PersonWinLineToBreakIndex = -1;
-      }
-
       let availableSpots = emptySquares(cellDivs);
 
       if (currentCell === 4) isCellFourPlayed = true;
@@ -204,6 +195,55 @@ const aiTurn = () => {
       checkGameStatus();
     }
   }, 300);
+};
+
+const getNextAiCell = () => {
+  let moveCell = -1;
+  if (!isCellFourPlayed) {
+    isCellFourPlayed = true;
+    return 4;
+  }
+  let bestAiWinLineIndex = 0;
+  let personWinLineToBreakIndex = -1;
+  for (let i = 0; i < 8; i++) {
+    if (winCombinatingOwnedCellsPerson[i] === 2) {
+      for (let j = 0; j < 3; j++) {
+        if (!cellDivs[winCombos[i][j]].classList[3]) return winCombos[i][j];
+      }
+    }
+    if (
+      winCombinatingOwnedCellsAi[i] >
+      winCombinatingOwnedCellsAi[bestAiWinLineIndex]
+    ) {
+      bestAiWinLineIndex = i;
+      personWinLineToBreakIndex = -1;
+    }
+    if (
+      winCombinatingOwnedCellsAi[i] ===
+        winCombinatingOwnedCellsAi[bestAiWinLineIndex] &&
+      bestAiWinLineIndex > 0 &&
+      personWinLineToBreakIndex === -1
+    ) {
+      winCombos[i].forEach((winLineCell) => {
+        digitToWinComboIndex[winLineCell].forEach((winLineIndex) => {
+          if (winLineIndex > -1) {
+            if (
+              winCombinatingOwnedCellsAi[winLineIndex] === 0 &&
+              winCombinatingOwnedCellsPerson[winLineIndex] > 0
+            ) {
+              for (let j = 0; j < 3; j++) {
+                if (!cellDivs[winCombos[winLineIndex][j]].classList[3]) {
+                  bestAiWinLineIndex = i;
+                  personWinLineToBreakIndex = -1;
+                  return winCombos[winLineIndex][j];
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+  }
 };
 
 const emptySquares = (elems) => {
