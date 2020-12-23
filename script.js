@@ -6,20 +6,17 @@ const activeCell = document.querySelector(".active");
 document.addEventListener("keydown", (e) => move(e.keyCode));
 
 let winCombos = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
   [0, 4, 8],
   [2, 4, 6],
+  [3, 4, 5],
+  [1, 4, 7],
+  [6, 7, 8],
+  [0, 3, 6],
+  [2, 5, 8],
+  [0, 1, 2],
 ];
 
-let newElem = 0;
-
-let huPlayer = "x";
-let aiPlayer = "o";
+let isCellFourPlayed = false;
 
 // game constants
 
@@ -31,10 +28,18 @@ let gameIsRunning = true;
 let lastCell = 0;
 let currentCell = 0;
 
-let moveCellRating = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-let winCombinatingRatingAi = [0, 0, 0, 0, 0, 0, 0, 0];
-let winCombinatingRatingPerson = [0, 0, 0, 0, 0, 0, 0, 0];
-
+let winCombinatingOwnedCellsAi = [0, 0, 0, 0, 0, 0, 0, 0];
+let winCombinatingOwnedCellsPerson = [0, 0, 0, 0, 0, 0, 0, 0];
+let digitToWinComboIndex = [
+  [0, 5, 7, -1],
+  [3, 7, -1, -1],
+  [1, 6, 7, -1],
+  [2, 5, -1, -1],
+  [0, 1, 2, 3],
+  [2, 6, -1, -1],
+  [1, 4, 5, -1],
+  [3, 4, -1, -1],
+];
 // functions
 const move = (keyCode) => {
   if (gameIsRunning) {
@@ -82,14 +87,12 @@ const getClassForSymbol = (letter) => {
 };
 
 const checkGameStatus = () => {
-  for (let i = 0; i < winCombos.length; i++) {
-    if (
-      cellDivs[winCombos[i][0]].classList[3] &&
-      cellDivs[winCombos[i][0]].classList[3] ===
-        cellDivs[winCombos[i][1]].classList[3] &&
-      cellDivs[winCombos[i][0]].classList[3] ===
-        cellDivs[winCombos[i][2]].classList[3]
-    ) {
+  let currentWinCombinatingOwnedCell =
+    currentPlayerSymbol === xSymbol
+      ? winCombinatingOwnedCellsPerson
+      : winCombinatingOwnedCellsAi;
+  for (let i = 0; i < currentWinCombinatingOwnedCell.length; i++) {
+    if (currentWinCombinatingOwnedCell[i] === 3) {
       gameIsRunning = false;
       for (let j = 0; j < 3; j++) {
         cellDivs[winCombos[i][j]].classList.add("won");
@@ -130,6 +133,9 @@ const handleReset = (e) => {
     cellDiv.classList.remove("won");
   }
   cellDivs[0].classList.replace("inactive", "active");
+  winCombinatingOwnedCellsAi = [0, 0, 0, 0, 0, 0, 0, 0];
+  winCombinatingOwnedCellsPerson = [0, 0, 0, 0, 0, 0, 0, 0];
+  isCellFourPlayed = false;
   gameIsRunning = true;
 };
 // event listeners
@@ -149,6 +155,13 @@ const handleCellClick = (e, elem) => {
       currentCell = parseInt(e.target.classList[1]);
       updateActiveCell();
     }
+    if (currentCell === 4) isCellFourPlayed = true;
+
+    digitToWinComboIndex[currentCell].forEach((elem) => {
+      if (elem > -1) {
+        winCombinatingOwnedCellsPerson[elem] += 1;
+      }
+    });
 
     checkGameStatus();
 
@@ -184,103 +197,10 @@ const bestSpot = (origBoard) => {
   return minimax([...cellDivs], true);
 };
 
-const checkWin = (board, player) => {
-  console.log(board);
-  const aiMoves = board.reduce(
-    (a, e, i) => (e.classList[3] === player ? a.concat(i.toString()) : a),
-    []
-  );
-
-  console.log(aiMoves);
-  let gameWon = null;
-  for (let [index, win] of winCombos.entries()) {
-    if (win.every((elem) => aiMoves.indexOf(elem) > -1)) {
-      gameWon = { index: index, player: player };
-      break;
-    }
-  }
-  return gameWon;
+const minimax = () => {
+  return 0;
 };
 
-function minimax(newBoard, player) {
-  let availSpots = emptySquares(newBoard, player);
-  /*  if (checkWin([...newBoard], huPlayer)) {
-    return { score: -10 };
-  } else if (checkWin([...newBoard], aiPlayer)) {
-    return { score: 10 };
-  } else if (availSpots.length === 0) {
-    return { score: 0 };
-  }
-  const moves = [];
-  console.log(moves);
-  for (let i = 0; i < availSpots.length; i++) {
-    const move = {};
-    move.index = newBoard[availSpots[i]];
-    console.log(availSpots[i]);
-    newBoard[availSpots[i].classList[3]] = player;
-
-    if (player == aiPlayer) {
-      let result = minimax(newBoard, huPlayer);
-      console.log(result);
-      move.score = result.score;
-    } else {
-      let result = minimax(newBoard, aiPlayer);
-      move.score = result.score;
-      console.log(result);
-    }
-
-    newBoard[availSpots[i]] = move.index;
-
-    moves.push(move);
-  }
-
-  let bestMove;
-  if (player === aiPlayer) {
-    let bestScore = -10000;
-    for (let i = 0; i < moves.length; i++) {
-      if (moves[i].score > bestScore) {
-        bestScore = moves[i].score;
-        bestMove = i;
-      }
-    }
-  } else {
-    let bestScore = 10000;
-    for (let i = 0; i < moves.length; i++) {
-      if (moves[i].score < bestScore) {
-        bestScore = moves[i].score;
-        bestMove = i;
-      }
-    }
-  }
-
-  return moves[bestMove]; */
-  return 0;
-}
-
-const ratingCalculation = () => {
-  winCombos.forEach((combo) => {
-    let rating = 0;
-    let firstSymbol = '';
-    for (let i = 0; i < 3; i++) {
-      var currentSymbol = cellDivs[combo[i]].classList[3];
-      if (currentSymbol) {
-        if (firstSymbol === ''|| firstSymbol === currentSymbol)
-        {
-          firstSymbol = currentSymbol;
-          rating += 1;
-        } else {
-          rating = 0;
-          break;
-        }
-      }
-      
-
-
-     //  xRating += 1;
-      //} else if (cellDivs[combo[i]].classList.includes("o")) {
-      //  oRating += 1;
-     // }
-   
 for (const cellDiv of cellDivs) {
   cellDiv.addEventListener("click", handleCellClick);
 }
