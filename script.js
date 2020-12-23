@@ -180,7 +180,24 @@ const updateActiveCell = () => {
 const aiTurn = () => {
   window.setTimeout(() => {
     if (gameIsRunning) {
+      let moveCell = -1;
+      if (!isCellFourPlayed) {
+        moveCell = 4;
+      } else {
+        let bestAiWinLineScore = -1;
+        let bestAiWinLineIndex = -1;
+        let PersonWinLineToBreakIndex = -1;
+      }
+
       let availableSpots = emptySquares(cellDivs);
+
+      if (currentCell === 4) isCellFourPlayed = true;
+
+      digitToWinComboIndex[currentCell].forEach((elem) => {
+        if (elem > -1) {
+          winCombinatingOwnedCellsPerson[elem] += 1;
+        }
+      });
       availableSpots[bestSpot(availableSpots)].classList.add(
         getClassForSymbol(oSymbol)
       );
