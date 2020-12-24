@@ -2,8 +2,13 @@ const statusDiv = document.querySelector(".status");
 const resetDiv = document.querySelector(".reset");
 const cellDivs = document.querySelectorAll(".game-cell");
 const activeCell = document.querySelector(".active");
+const buttons = document.querySelectorAll(".buttons__button");
+const blockedModules = document.querySelectorAll(".field");
 
-document.addEventListener("keydown", (e) => move(e.keyCode));
+document.addEventListener("keydown", (e) => {
+  move(e.keyCode);
+  chooseSide(e.keyCode);
+});
 
 let winCombos = [
   [0, 4, 8],
@@ -23,8 +28,11 @@ let isCellFourPlayed = false;
 const xSymbol = "✗";
 const oSymbol = "○";
 
+let chosenPlayer;
+
+let keyEnum = { up: 38, down: 40, left: 37, right: 39, return: 13 };
 let currentPlayerSymbol = xSymbol;
-let gameIsRunning = true;
+let gameIsRunning = false;
 let lastCell = 0;
 let currentCell = 0;
 
@@ -42,40 +50,46 @@ let digitToWinComboIndex = [
   [0, 4, 6, -1],
 ];
 // functions
-const move = (keyCode) => {
+const move = (key) => {
   if (gameIsRunning) {
-    let key = null;
-
-    switch (event.keyCode) {
-      case 38:
-        key = "up";
-        break;
-      case 40:
-        key = "down";
-        break;
-      case 37:
-        key = "left";
-        break;
-      case 39:
-        key = "right";
-        break;
-      case 13:
-        key = "return";
-    }
-
-    if (key === "up") {
+    if (key === keyEnum.up) {
       if (currentCell > 2) currentCell -= 3;
-    } else if (key === "down") {
+    } else if (key === keyEnum.down) {
       if (currentCell < 6) currentCell += 3;
-    } else if (key === "right") {
+    } else if (key === keyEnum.right) {
       if (currentCell % 3 < 2) currentCell += 1;
-    } else if (key === "left") {
+    } else if (key === keyEnum.left) {
       if (currentCell % 3 > 0) currentCell -= 1;
-    } else if (key === "return") {
+    } else if (key === keyEnum.return) {
       handleCellClick(false, currentCell);
     }
 
     updateActiveCell();
+  }
+};
+
+const chooseSide = (key) => {
+  //
+  if (!gameIsRunning) {
+    if (key === keyEnum.right) {
+      buttons[0].classList.replace("button-active", "button-inactive");
+      buttons[1].classList.replace("button-inactive", "button-active");
+      chosenPlayer = getClassForSymbol(oSymbol);
+      console.log(chosenPlayer, buttons[0], buttons[1]);
+    } else if (key === keyEnum.left) {
+      console.log(keyEnum.left);
+      buttons[0].classList.replace("button-inactive", "button-active");
+      buttons[1].classList.replace("button-active", "button-inactive");
+      chosenPlayer = getClassForSymbol(xSymbol);
+      console.log(chosenPlayer, buttons[0], buttons[1]);
+    }
+
+    if (key === keyEnum.return) {
+      gameIsRunning = true;
+      blockedModules[0].classList.replace("blocked", "unblocked");
+      blockedModules[1].classList.replace("unblocked", "blocked");
+      switchSides(chosenPlayer);
+    }
   }
 };
 
@@ -137,13 +151,15 @@ const handleReset = (e) => {
   winCombinatingOwnedCellsAi = [0, 0, 0, 0, 0, 0, 0, 0];
   winCombinatingOwnedCellsPerson = [0, 0, 0, 0, 0, 0, 0, 0];
   isCellFourPlayed = false;
-  gameIsRunning = true;
+  gameIsRunning = false;
 };
 // event listeners
 
 resetDiv.addEventListener("click", handleReset);
 
-const handleCellClick = (e, elem) => {
+// function that handles person's click :)
+
+let handleCellClick = (e, elem) => {
   if (gameIsRunning) {
     let classList = e ? e.target.classList : cellDivs[elem].classList;
 
@@ -170,6 +186,13 @@ const handleCellClick = (e, elem) => {
   }
 };
 
+function switchSides(player) {
+  if (player === "o") {
+    aiTurn();
+  } else if (chosenPlayer === "x") {
+  }
+}
+
 const updateActiveCell = () => {
   cellDivs[lastCell].classList.replace("active", "inactive");
   cellDivs[currentCell].classList.replace("inactive", "active");
@@ -185,7 +208,6 @@ const aiTurn = () => {
       digitToWinComboIndex[nextMoveCell].forEach((elem) => {
         if (elem > -1) winCombinatingOwnedCellsAi[elem] += 1;
       });
-      checkGameStatus();
     }
   }, 300);
 };
@@ -234,37 +256,40 @@ const getNextAiCell = () => {
         cellToLock = -1;
         isFullyAiLine = currentLineIsFullyAiLine;
       }
-    }
-    // checking for the chance to break player's advantage
-    if (
-      winCombinatingOwnedCellsAi[i] ===
-      winCombinatingOwnedCellsAi[bestAiWinLineIndex]
-    ) {
-      for (let j = 0; j < 3, cellToLock === -1; j++) {
-        if (!cellDivs[winCombos[i][j]].classList[3]) {
-          let currentCellToCheck = winCombos[i][j];
-          for (let k = 0; k < 4; k++) {
-            let possiblePersonLineIndex =
-              digitToWinComboIndex[currentCellToCheck][k];
-            if (
-              possiblePersonLineIndex > -1 &&
-              winCombinatingOwnedCellsAi[possiblePersonLineIndex] === 0 &&
-              winCombinatingOwnedCellsPerson[possiblePersonLineIndex] > 0
-            ) {
-              bestAiWinLineIndex = i;
-              cellToLock = currentCellToCheck;
-              break;
+
+      // checking for the chance to break player's advantage
+      if (
+        winCombinatingOwnedCellsAi[i] ===
+        winCombinatingOwnedCellsAi[bestAiWinLineIndex]
+      ) {
+        for (let j = 0; j < 3, cellToLock === -1; j++) {
+          console.log(!cellDivs[winCombos[i][j]]);
+          if (!cellDivs[winCombos[i][j]].classList[3]) {
+            console.log(!cellDivs[winCombos[i][j]].classList[3]);
+            let currentCellToCheck = winCombos[i][j];
+            for (let k = 0; k < 4; k++) {
+              let possiblePersonLineIndex =
+                digitToWinComboIndex[currentCellToCheck][k];
+              if (
+                possiblePersonLineIndex > -1 &&
+                winCombinatingOwnedCellsAi[possiblePersonLineIndex] === 0 &&
+                winCombinatingOwnedCellsPerson[possiblePersonLineIndex] > 0
+              ) {
+                bestAiWinLineIndex = i;
+                cellToLock = currentCellToCheck;
+                break;
+              }
             }
           }
         }
       }
-    }
-    // making a move to "break" player's line
-    if (cellToLock > -1) return cellToLock;
+      // making a move to "break" player's line
+      if (cellToLock > -1) return cellToLock;
 
-    // making a move based on all previous filters
-    console.log(bestAiWinLineIndex);
-    return getFirstFreeCell(bestAiWinLineIndex);
+      // making a move based on all previous filters
+      console.log(bestAiWinLineIndex);
+      return getFirstFreeCell(bestAiWinLineIndex);
+    }
   }
 };
 

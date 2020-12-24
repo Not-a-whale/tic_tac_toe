@@ -12,13 +12,17 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   font-family: sans-serif;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   color: #545454;
 }
 
@@ -154,5 +158,54 @@ body {
 
 .active {
   border: 5px solid goldenrod;
+}
+
+.blocked {
+  opacity: 0.3;
+}
+
+.blocked:hover,
+.blocked > * {
+  cursor: default !important;
+}
+
+.buttons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin-top: 20px;
+}
+
+.buttons button {
+  border: none;
+  outline: none;
+  background-color: transparent;
+}
+
+.buttons button:hover {
+  -webkit-transform: scale(1.02);
+          transform: scale(1.02);
+  cursor: pointer;
+}
+
+.buttons button:active, .buttons button.active {
+  -webkit-transform: scale(1);
+          transform: scale(1);
+}
+
+.button-active {
+  padding: 5px;
+  border: 5px solid goldenrod !important;
+}
+
+.button-inactive {
+  padding: 5px;
+  border: 5px solid transparent !important;
 }
 /*# sourceMappingURL=style.css.map */

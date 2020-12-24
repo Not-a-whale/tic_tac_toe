@@ -7,9 +7,10 @@
 
 body {
   display: flex;
+  flex-direction: column;
   font-family: sans-serif;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   color: #545454;
 }
 
@@ -143,4 +144,46 @@ body {
 
 .active {
   border: 5px solid goldenrod;
+}
+
+.blocked {
+  opacity: 0.3;
+}
+
+.blocked:hover,
+.blocked > * {
+  cursor: default !important;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+
+  button {
+    border: none;
+    outline: none;
+    background-color: transparent;
+
+    &:hover {
+      transform: scale(1.02);
+      cursor: pointer;
+    }
+
+    &:active,
+    &.active {
+      transform: scale(1);
+    }
+  }
+}
+
+.button-active {
+  padding: 5px;
+  border: 5px solid goldenrod !important;
+}
+
+.button-inactive {
+  padding: 5px;
+  border: 5px solid transparent !important;
 }
