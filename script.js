@@ -30,7 +30,7 @@ const oSymbol = "○";
 
 let chosenPlayer;
 
-let keyEnum = { up: 38, down: 40, left: 37, right: 39, return: 13 };
+let keyEnum = { up: 38, down: 40, left: 37, right: 39, return: 13, reset: "" };
 let currentPlayerSymbol = xSymbol;
 let gameIsRunning = false;
 let lastCell = 0;
@@ -62,7 +62,10 @@ const move = (key) => {
       if (currentCell % 3 > 0) currentCell -= 1;
     } else if (key === keyEnum.return) {
       handleCellClick(false, currentCell);
+    } else {
     }
+
+    console.log(key);
 
     updateActiveCell();
   }
@@ -75,13 +78,16 @@ const chooseSide = (key, letter) => {
       buttons[0].classList.replace("button-active", "button-inactive");
       buttons[1].classList.replace("button-inactive", "button-active");
       chosenPlayer = getClassForSymbol(oSymbol);
-      console.log(chosenPlayer, buttons[0], buttons[1]);
+      currentPlayerSymbol = letterToSymbol(chosenPlayer);
+      console.log(currentPlayerSymbol);
     } else if (key === keyEnum.left || letter === "x") {
       console.log(keyEnum.left);
       buttons[0].classList.replace("button-inactive", "button-active");
       buttons[1].classList.replace("button-active", "button-inactive");
       chosenPlayer = getClassForSymbol(xSymbol);
-      console.log(chosenPlayer, buttons[0], buttons[1]);
+
+      currentPlayerSymbol = letterToSymbol(chosenPlayer);
+      console.log(currentPlayerSymbol);
     }
 
     if (key === keyEnum.return || letter) {
