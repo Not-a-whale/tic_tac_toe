@@ -68,15 +68,15 @@ const move = (key) => {
   }
 };
 
-const chooseSide = (key) => {
+const chooseSide = (key, letter) => {
   //
   if (!gameIsRunning) {
-    if (key === keyEnum.right) {
+    if (key === keyEnum.right || letter === "o") {
       buttons[0].classList.replace("button-active", "button-inactive");
       buttons[1].classList.replace("button-inactive", "button-active");
       chosenPlayer = getClassForSymbol(oSymbol);
       console.log(chosenPlayer, buttons[0], buttons[1]);
-    } else if (key === keyEnum.left) {
+    } else if (key === keyEnum.left || letter === "x") {
       console.log(keyEnum.left);
       buttons[0].classList.replace("button-inactive", "button-active");
       buttons[1].classList.replace("button-active", "button-inactive");
@@ -84,7 +84,7 @@ const chooseSide = (key) => {
       console.log(chosenPlayer, buttons[0], buttons[1]);
     }
 
-    if (key === keyEnum.return) {
+    if (key === keyEnum.return || letter) {
       gameIsRunning = true;
       blockedModules[0].classList.replace("blocked", "unblocked");
       blockedModules[1].classList.replace("unblocked", "blocked");
@@ -152,6 +152,9 @@ const handleReset = (e) => {
   winCombinatingOwnedCellsPerson = [0, 0, 0, 0, 0, 0, 0, 0];
   isCellFourPlayed = false;
   gameIsRunning = false;
+  blockedModules[1].classList.replace("blocked", "unblocked");
+  blockedModules[0].classList.replace("unblocked", "blocked");
+  chosenPlayer = undefined;
 };
 // event listeners
 
@@ -187,8 +190,10 @@ let handleCellClick = (e, elem) => {
 };
 
 function switchSides(player) {
+  console.log(player);
   if (player === "o") {
     aiTurn();
+    console.log(player);
   } else if (chosenPlayer === "x") {
   }
 }
@@ -208,6 +213,7 @@ const aiTurn = () => {
       digitToWinComboIndex[nextMoveCell].forEach((elem) => {
         if (elem > -1) winCombinatingOwnedCellsAi[elem] += 1;
       });
+      checkGameStatus();
     }
   }, 300);
 };
@@ -262,8 +268,12 @@ const getNextAiCell = () => {
         winCombinatingOwnedCellsAi[i] ===
         winCombinatingOwnedCellsAi[bestAiWinLineIndex]
       ) {
+        console.log(
+          winCombinatingOwnedCellsAi[i],
+          winCombinatingOwnedCellsAi[bestAiWinLineIndex]
+        );
         for (let j = 0; j < 3, cellToLock === -1; j++) {
-          console.log(!cellDivs[winCombos[i][j]]);
+          console.log(cellDivs[winCombos[i][j]]);
           if (!cellDivs[winCombos[i][j]].classList[3]) {
             console.log(!cellDivs[winCombos[i][j]].classList[3]);
             let currentCellToCheck = winCombos[i][j];
@@ -306,4 +316,11 @@ const emptySquares = (elems) => {
 
 for (const cellDiv of cellDivs) {
   cellDiv.addEventListener("click", handleCellClick);
+}
+
+for (const button of buttons) {
+  button.addEventListener("click", (e) => {
+    console.log(e.target.classList[1], switchSides);
+    chooseSide(false, e.target.classList[1]);
+  });
 }
