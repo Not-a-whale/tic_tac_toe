@@ -28,7 +28,7 @@ let isCellFourPlayed = false;
 const xSymbol = "✗";
 const oSymbol = "○";
 
-let chosenPlayer;
+let chosenPlayer = "x";
 
 let keyEnum = { up: 38, down: 40, left: 37, right: 39, return: 13, reset: "" };
 let currentPlayerSymbol = xSymbol;
@@ -78,7 +78,7 @@ const chooseSide = (key, letter) => {
       buttons[0].classList.replace("button-active", "button-inactive");
       buttons[1].classList.replace("button-inactive", "button-active");
       chosenPlayer = getClassForSymbol(oSymbol);
-      currentPlayerSymbol = letterToSymbol(chosenPlayer);
+      currentPlayerSymbol = oSymbol;
       console.log(currentPlayerSymbol);
     } else if (key === keyEnum.left || letter === "x") {
       console.log(keyEnum.left);
@@ -86,7 +86,7 @@ const chooseSide = (key, letter) => {
       buttons[1].classList.replace("button-active", "button-inactive");
       chosenPlayer = getClassForSymbol(xSymbol);
 
-      currentPlayerSymbol = letterToSymbol(chosenPlayer);
+      currentPlayerSymbol = xSymbol;
       console.log(currentPlayerSymbol);
     }
 
