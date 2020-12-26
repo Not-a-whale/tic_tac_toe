@@ -6,7 +6,7 @@ const buttons = document.querySelectorAll(".buttons__button");
 const blockedModules = document.querySelectorAll(".field");
 
 document.addEventListener("keydown", (e) => {
-  move(e.keyCode);
+  preventDefaultScroll(e);
   chooseSide(e.keyCode);
 });
 
@@ -30,7 +30,15 @@ const oSymbol = "○";
 
 let chosenPlayer = "x";
 
-let keyEnum = { up: 38, down: 40, left: 37, right: 39, return: 13, reset: "" };
+let keyEnum = {
+  up: 38,
+  down: 40,
+  left: 37,
+  right: 39,
+  return: 13,
+  reset: 27,
+  space: 32,
+};
 let currentPlayerSymbol = xSymbol;
 let gameIsRunning = false;
 let lastCell = 0;
@@ -50,7 +58,27 @@ let digitToWinComboIndex = [
   [0, 4, 6, -1],
 ];
 // functions
+const preventDefaultScroll = (e) => {
+  if (
+    [
+      keyEnum.space,
+      keyEnum.left,
+      keyEnum.up,
+      keyEnum.right,
+      keyEnum.down,
+    ].indexOf(e.keyCode) > -1
+  ) {
+    e.preventDefault();
+    move(e.keyCode);
+  } else {
+    move(e.keyCode);
+  }
+};
+
 const move = (key) => {
+  if (key === keyEnum.reset) {
+    handleReset();
+  }
   if (gameIsRunning) {
     if (key === keyEnum.up) {
       if (currentCell > 2) currentCell -= 3;
@@ -62,10 +90,7 @@ const move = (key) => {
       if (currentCell % 3 > 0) currentCell -= 1;
     } else if (key === keyEnum.return) {
       handleCellClick(false, currentCell);
-    } else {
     }
-
-    console.log(key);
 
     updateActiveCell();
   }
@@ -278,7 +303,7 @@ const getNextAiCell = () => {
           winCombinatingOwnedCellsAi[i],
           winCombinatingOwnedCellsAi[bestAiWinLineIndex]
         );
-        for (let j = 0; j < 3, cellToLock === -1; j++) {
+        for (let j = 0; j < 3 && cellToLock === -1; j++) {
           console.log(cellDivs[winCombos[i][j]]);
           if (!cellDivs[winCombos[i][j]].classList[3]) {
             console.log(!cellDivs[winCombos[i][j]].classList[3]);
