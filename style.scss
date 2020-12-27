@@ -103,6 +103,7 @@ body {
     margin-top: 25px;
     grid-gap: 16px;
     gap: 10px;
+    width: 320px;
   }
 
   .game-cell {
@@ -127,6 +128,7 @@ body {
 
   .game-grid {
     gap: 5px;
+    width: 310px;
   }
 
   .game-cell {
@@ -217,6 +219,13 @@ body {
   top: 0;
   left: 0;
   width: 100%;
+}
+
+.help-text {
+  position: absolute;
+  right: 1%;
+  top: 1%;
+  font-size: 1.5rem;
 }
 
 @media screen and (max-width: 1024px) {

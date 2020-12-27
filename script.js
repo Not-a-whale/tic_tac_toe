@@ -9,7 +9,7 @@ document.addEventListener("keydown", (e) => {
   preventDefaultScroll(e);
   chooseSide(e.keyCode);
 });
-
+//All possible winning combinations
 let winCombos = [
   [0, 4, 8],
   [2, 4, 6],
@@ -44,18 +44,21 @@ let gameIsRunning = false;
 let lastCell = 0;
 let currentCell = 0;
 
+// counters for winning combinations
 let winCombinatingOwnedCellsAi = [0, 0, 0, 0, 0, 0, 0, 0];
 let winCombinatingOwnedCellsPerson = [0, 0, 0, 0, 0, 0, 0, 0];
+
+// I wich wincombos a number is present
 let digitToWinComboIndex = [
-  [0, 5, 7, -1],
-  [3, 7, -1, -1],
-  [1, 6, 7, -1],
-  [2, 5, -1, -1],
-  [0, 1, 2, 3],
-  [2, 6, -1, -1],
-  [1, 4, 5, -1],
-  [3, 4, -1, -1],
-  [0, 4, 6, -1],
+  [0, 5, 7, -1], // 0
+  [3, 7, -1, -1], // 1
+  [1, 6, 7, -1], // 2
+  [2, 5, -1, -1], // 3
+  [0, 1, 2, 3], // 4
+  [2, 6, -1, -1], // 5
+  [1, 4, 5, -1], // 6
+  [3, 4, -1, -1], // 7
+  [0, 4, 6, -1], // 8
 ];
 // functions
 const preventDefaultScroll = (e) => {
@@ -239,7 +242,9 @@ const aiTurn = () => {
   window.setTimeout(() => {
     if (gameIsRunning) {
       let nextMoveCell = getNextAiCell();
-      cellDivs[nextMoveCell].classList.add(getClassForSymbol(oSymbol));
+      if (cellDivs[nextMoveCell]) {
+        cellDivs[nextMoveCell].classList.add(getClassForSymbol(oSymbol));
+      }
 
       digitToWinComboIndex[nextMoveCell].forEach((elem) => {
         if (elem > -1) winCombinatingOwnedCellsAi[elem] += 1;
@@ -250,6 +255,7 @@ const aiTurn = () => {
 };
 
 const getNextAiCell = () => {
+  console.log(winCombinatingOwnedCellsAi, winCombinatingOwnedCellsPerson);
   if (!isCellFourPlayed) {
     isCellFourPlayed = true;
     return 4;
@@ -267,6 +273,9 @@ const getNextAiCell = () => {
       winCombinatingOwnedCellsAi[i] === 0
     )
       cellToLock = getFirstFreeCell(i);
+  }
+  if (winCombinatingOwnedCellsPerson[4] === 2) {
+    cellToLock = getFirstFreeCell(4);
   }
   if (cellToLock > -1) return cellToLock;
 
